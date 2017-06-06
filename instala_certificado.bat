@@ -57,11 +57,11 @@ cd /D %PROFILE%
 
 if exist %USERJS% (
 	findstr "security.enterprise_roots.enabled" %USERJS%
-	if ERRORLEVEL 1 echo 111pref("security.enterprise_roots.enabled", true^) >> %USERJS%
+	if ERRORLEVEL 1 echo pref("security.enterprise_roots.enabled", true^) >> %USERJS%
 )
 
 if not exist %USERJS% (
-	echo 222pref("security.enterprise_roots.enabled", true^) >> %USERJS%
+	echo pref("security.enterprise_roots.enabled", true^) >> %USERJS%
 )
 
 cd /D %DIRPRINCIPAL%
