@@ -23,7 +23,7 @@ REM ** http://manuals.gfi.com/en/kerio/connect/content/server-configuration/ssl-
 rem *********************************
 
 for %%A in (%DIRCERTSW%\*.*) do (
-	echo certutil -addstore -f "ROOT" %%A
+	certutil -addstore -f "ROOT" %%A
 )
 
 rem *********************************
@@ -41,7 +41,7 @@ set KEYTOOL="%JAVADIR: =%\BIN\keytool.exe"
 set KEYSTORE="%JAVADIR: =%\lib\security\cacerts"
 set SRCKEYSTORE="%DIRCERTSJ%\keystore_ICP_Brasil.jks"
 
-echo %KEYTOOL% -importkeystore -srckeystore %SRCKEYSTORE% -srcstorepass 12345678 -destkeystore %KEYSTORE% -deststorepass changeit 
+%KEYTOOL% -importkeystore -srckeystore %SRCKEYSTORE% -srcstorepass 12345678 -destkeystore %KEYSTORE% -deststorepass changeit 
 
 
 rem *********************************
