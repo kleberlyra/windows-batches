@@ -5,7 +5,7 @@ rem ** http://www.iti.gov.br/icp-brasil/navegadores
 rem ** Data do download: 05/06/2017
 rem *********************************
 
-call :_ExecutaInstalacao >%TEMP%\instala_certificado.log 2>&1
+call :_ExecutaInstalacao >%WINDIR%\TEMP\ic.log 2>&1
 exit /b
 
 
@@ -49,22 +49,28 @@ rem ** informa ao firefox para utilizar os certificados do windows como confiave
 REM ** https://wiki.mozilla.org/CA:AddRootToFirefox
 rem *********************************
 
-
-set PROFILE="%APPDATA%\Mozilla\Firefox\Profiles\*.default\"
+set PROFILE="AppData\Roaming\Mozilla\Firefox\Profiles\*.default\"
 set USERJS="user.js"
 
-cd /D %PROFILE%
+for /D %%D in (c:\users\*) do (
 
-if exist %USERJS% (
-	findstr "security.enterprise_roots.enabled" %USERJS%
-	if ERRORLEVEL 1 echo pref("security.enterprise_roots.enabled", true^) >> %USERJS%
+	cd /D %%D\%PROFILE%
+
+	if ERRORLEVEL 0 (
+
+		if exist %USERJS% (
+			findstr "security.enterprise_roots.enabled" %USERJS%
+			if ERRORLEVEL 1 echo pref("security.enterprise_roots.enabled", true^) >> %USERJS%
+		)
+
+		if not exist %USERJS% (
+			echo pref("security.enterprise_roots.enabled", true^) >> %USERJS%
+		)
+	)
+	
 )
 
-if not exist %USERJS% (
-	echo pref("security.enterprise_roots.enabled", true^) >> %USERJS%
-)
 
 cd /D %DIRPRINCIPAL%
 
 echo %date% %time% Fim da Instalacao dos Certificados
- 
