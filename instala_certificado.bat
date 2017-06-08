@@ -31,17 +31,13 @@ rem ** adiciona as cadeias de certificados ao java
 REM ** http://www.iti.gov.br/icp-brasil/navegadores/188-atualizacao/4736-cadeia-icpbrasil-java-windows-linux
 rem *********************************
 
-java -version 2>&1 | findstr "version" > %TEMP%\java.tmp
+set SRCKEYSTORE=%DIRCERTSJ%\keystore_ICP_Brasil.jks
 
-for /f "tokens=3" %%A in (%TEMP%java.tmp) do echo %%~A
-
-for /f "tokens=*" %%A in ('dir /s /B c:\keytool.exe') do set KEYTOOL=%%A
-
-for /f "tokens=*" %%A in ('dir /s /B c:\cacerts') do (
-	set CACERTS=%%A
-	set SRCKEYSTORE=%DIRCERTSJ%\keystore_ICP_Brasil.jks
-	"%KEYTOOL%" -importkeystore -srckeystore "%SRCKEYSTORE%" -srcstorepass 12345678 -destkeystore "%CACERTS%" -deststorepass changeit -noprompt 
-)
+for /f "tokens=*" %%A in ('dir /s /B c:\keytool.exe') do ( 
+	set KEYTOOL=%%A
+	set CACERTS=%%~dpA..\lib\security\cacerts	
+	if exist "%%~dpA..\lib\security\cacerts" "%%A" -importkeystore -srckeystore "%SRCKEYSTORE%" -srcstorepass 12345678 -destkeystore "%%~dpA..\lib\security\cacerts" -deststorepass changeit -noprompt 
+)	
 
 
 rem *********************************
