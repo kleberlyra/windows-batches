@@ -1,11 +1,11 @@
-rem @echo off
 rem *********************************
 rem ** Obter certificados no site do ITI
 rem ** http://www.iti.gov.br/icp-brasil/navegadores
 rem ** Data do download: 05/06/2017
 rem *********************************
 
-call :_ExecutaInstalacao >%WINDIR%\TEMP\ic.log 2>&1
+call :_ExecutaInstalacao >%TEMP%\ic.log 2>&1
+copy %TEMP%\ic.log %WINDIR%\TEMP\ic.log 
 exit /b
 
 
@@ -31,17 +31,17 @@ rem ** adiciona as cadeias de certificados ao java
 REM ** http://www.iti.gov.br/icp-brasil/navegadores/188-atualizacao/4736-cadeia-icpbrasil-java-windows-linux
 rem *********************************
 
-for /F "skip=1 tokens=*" %%A in ('wmic product where "name like 'Java 8%%'" get installlocation') do ( 
-	set JAVADIR=%%A
-	goto _SairFor
+java -version 2>&1 | findstr "version" > %TEMP%\java.tmp
+
+for /f "tokens=3" %%A in (%TEMP%java.tmp) do echo %%~A
+
+for /f "tokens=*" %%A in ('dir /s /B c:\keytool.exe') do set KEYTOOL=%%A
+
+for /f "tokens=*" %%A in ('dir /s /B c:\cacerts') do (
+	set CACERTS=%%A
+	set SRCKEYSTORE=%DIRCERTSJ%\keystore_ICP_Brasil.jks
+	"%KEYTOOL%" -importkeystore -srckeystore "%SRCKEYSTORE%" -srcstorepass 12345678 -destkeystore "%CACERTS%" -deststorepass changeit -noprompt 
 )
-:_SairFor
-
-set KEYTOOL="%JAVADIR: =%\BIN\keytool.exe"
-set KEYSTORE="%JAVADIR: =%\lib\security\cacerts"
-set SRCKEYSTORE="%DIRCERTSJ%\keystore_ICP_Brasil.jks"
-
-%KEYTOOL% -importkeystore -srckeystore %SRCKEYSTORE% -srcstorepass 12345678 -destkeystore %KEYSTORE% -deststorepass changeit 
 
 
 rem *********************************
@@ -49,7 +49,7 @@ rem ** informa ao firefox para utilizar os certificados do windows como confiave
 REM ** https://wiki.mozilla.org/CA:AddRootToFirefox
 rem *********************************
 
-set PROFILE="AppData\Roaming\Mozilla\Firefox\Profiles\*.default\"
+set PROFILE="AppData\Roaming\Mozilla\Firefox\Profiles\*.default*\"
 set USERJS="user.js"
 
 for /D %%D in (c:\users\*) do (
@@ -60,11 +60,11 @@ for /D %%D in (c:\users\*) do (
 
 		if exist %USERJS% (
 			findstr "security.enterprise_roots.enabled" %USERJS%
-			if ERRORLEVEL 1 echo pref("security.enterprise_roots.enabled", true^) >> %USERJS%
+			if ERRORLEVEL 1 echo pref("security.enterprise_roots.enabled", true^); >> %USERJS%
 		)
 
 		if not exist %USERJS% (
-			echo pref("security.enterprise_roots.enabled", true^) >> %USERJS%
+			echo pref("security.enterprise_roots.enabled", true^); >> %USERJS%
 		)
 	)
 	
